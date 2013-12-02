@@ -46,7 +46,7 @@ function! s:init_pad(command)
   execute a:command
 
   setlocal buftype=nofile bufhidden=wipe nomodifiable nobuflisted noswapfile
-        \ nonu nocursorline colorcolumn=
+        \ nonu nornu nocursorline colorcolumn=
         \ winfixwidth winfixheight statusline=\ 
   let bufnr = winbufnr(0)
 
@@ -120,10 +120,8 @@ function! s:goyo_on(width)
     \   'fillchars':      &fillchars,
     \   'winwidth':       &winwidth,
     \   'winheight':      &winheight,
-    \   'number':         &number,
-    \   'relativenumber': &relativenumber,
-    \   'colorcolumn':    &colorcolumn,
-    \   'statusline':     &statusline
+    \   'statusline':     &statusline,
+    \   'ruler':          &ruler
     \ }
 
   " vim-gitgutter
@@ -155,6 +153,7 @@ function! s:goyo_on(width)
   set winheight=1
   set laststatus=0
   set showtabline=0
+  set noruler
   set fillchars+=vert:\ 
   set fillchars+=stl:.
   set fillchars+=stlnc:\ 
