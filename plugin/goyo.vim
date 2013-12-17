@@ -46,8 +46,13 @@ function! s:init_pad(command)
   execute a:command
 
   setlocal buftype=nofile bufhidden=wipe nomodifiable nobuflisted noswapfile
-        \ nonu nornu nocursorline colorcolumn=
-        \ winfixwidth winfixheight statusline=\ 
+        \ nonu nocursorline winfixwidth winfixheight statusline=\ 
+  if exists('&rnu')
+    setlocal nornu
+  endif
+  if exists('&colorcolumn')
+    setlocal colorcolumn=
+  endif
   let bufnr = winbufnr(0)
 
   execute winnr('#') . 'wincmd w'
@@ -123,7 +128,9 @@ function! s:goyo_on(width)
     \   'winwidth':       &winwidth,
     \   'winheight':      &winheight,
     \   'statusline':     &statusline,
-    \   'ruler':          &ruler
+    \   'ruler':          &ruler,
+    \   'sidescroll':     &sidescroll,
+    \   'sidescrolloff':  &sidescrolloff
     \ }
   if has('gui_running')
     let t:goyo_revert.guioptions = &guioptions
@@ -151,9 +158,16 @@ function! s:goyo_on(width)
   endif
 
   if !get(g:, 'goyo_linenr', 0)
-    set nonu nornu
+    setlocal nonu
+    if exists('&rnu')
+      setlocal nornu
+    endif
   endif
-  set colorcolumn=
+  if exists('&colorcolumn')
+    setlocal colorcolumn=
+  endif
+
+  " Global options
   set winwidth=1
   set winheight=1
   set laststatus=0
@@ -162,6 +176,8 @@ function! s:goyo_on(width)
   set fillchars+=vert:\ 
   set fillchars+=stl:.
   set fillchars+=stlnc:\ 
+  set sidescroll=1
+  set sidescrolloff=0
 
   " Hide left-hand scrollbars
   if has('gui_running')
