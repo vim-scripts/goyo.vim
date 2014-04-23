@@ -46,7 +46,7 @@ function! s:init_pad(command)
   execute a:command
 
   setlocal buftype=nofile bufhidden=wipe nomodifiable nobuflisted noswapfile
-        \ nonu nocursorline winfixwidth winfixheight statusline=\ 
+      \ nonu nocursorline nocursorcolumn winfixwidth winfixheight statusline=\ 
   if exists('&rnu')
     setlocal nornu
   endif
@@ -115,6 +115,8 @@ function! s:tranquilize()
 endfunction
 
 function! s:goyo_on(width)
+  let s:orig_tab = tabpagenr()
+
   " New tab
   tab split
 
@@ -156,6 +158,12 @@ function! s:goyo_on(width)
       autocmd!
     augroup END
     augroup! PowerlineMain
+  endif
+
+  " lightline.vim
+  let t:goyo_disabled_lightline = exists('#LightLine')
+  if t:goyo_disabled_lightline
+    silent! call lightline#disable()
   endif
 
   if !get(g:, 'goyo_linenr', 0)
@@ -235,6 +243,7 @@ function! s:goyo_off()
   let goyo_disabled_gitgutter = t:goyo_disabled_gitgutter
   let goyo_disabled_airline   = t:goyo_disabled_airline
   let goyo_disabled_powerline = t:goyo_disabled_powerline
+  let goyo_disabled_lightline = t:goyo_disabled_lightline
 
   if tabpagenr() == 1
     tabnew
@@ -242,6 +251,7 @@ function! s:goyo_off()
     bd
   endif
   tabclose
+  execute 'normal! '.s:orig_tab.'gt'
 
   let wmh = remove(goyo_revert, 'winminheight')
   let wh  = remove(goyo_revert, 'winheight')
@@ -252,7 +262,7 @@ function! s:goyo_off()
   for [k, v] in items(goyo_revert)
     execute printf("let &%s = %s", k, string(v))
   endfor
-  execute 'colo '. g:colors_name
+  execute 'colo '. get(g:, 'colors_name', 'default')
 
   if goyo_disabled_gitgutter
     silent! GitGutterEnable
@@ -260,12 +270,16 @@ function! s:goyo_off()
 
   if goyo_disabled_airline && !exists("#airline")
     AirlineToggle
-    AirlineRefresh
+    silent! AirlineRefresh
   endif
 
   if goyo_disabled_powerline && !exists("#PowerlineMain")
     doautocmd PowerlineStartup VimEnter
     silent! PowerlineReloadColorscheme
+  endif
+
+  if goyo_disabled_lightline
+    silent! call lightline#enable()
   endif
 
   if exists('#Powerline')
